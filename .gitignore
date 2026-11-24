@@ -1,0 +1,12 @@
+# Your data (keep it, but no need to commit it)
+fitlog.db
+fitlog.db-journal
+fitlog.db-wal
+fitlog.db-shm
+
+# Python
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store

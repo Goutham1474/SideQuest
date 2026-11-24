@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#0a0d12" id="theme-color">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>FitLog · Pushups &amp; Steps</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f131a'/%3E%3Cpath d='M7 21l5.6-9 3.9 6L21 8.5l4 12.5' fill='none' stroke='%2334d399' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem("fitlog-theme");
+        var requested = new URLSearchParams(window.location.search).get("theme");
+        var theme =
+          requested === "light" || requested === "dark"
+            ? requested
+            : saved === "light" || saved === "dark"
+              ? saved
+              : window.matchMedia("(prefers-color-scheme: light)").matches
+                ? "light"
+                : "dark";
+        document.documentElement.dataset.theme = theme;
+        var meta = document.getElementById("theme-color");
+        if (meta) meta.setAttribute("content", theme === "light" ? "#f5f6f8" : "#0a0d12");
+      } catch (error) {
+        document.documentElement.dataset.theme = "dark";
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M4 16.5 8.6 9l3.4 5L17 6.5l3 7.5" fill="none" stroke="currentColor"
+                stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="brand-name">FitLog</span>
+    </div>
+
+    <div class="header-actions">
+      <button class="icon-btn" id="theme-btn" type="button" aria-label="Switch theme" title="Switch theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8Z"
+                fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+        </svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7"/>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
+                fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <button class="btn btn-secondary" id="settings-btn" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 7h7M15 7h5M4 17h5M13 17h7" fill="none" stroke="currentColor"
+                stroke-width="1.7" stroke-linecap="round"/>
+          <circle cx="13" cy="7" r="2.2" fill="none" stroke="currentColor" stroke-width="1.7"/>
+          <circle cx="11" cy="17" r="2.2" fill="none" stroke="currentColor" stroke-width="1.7"/>
+        </svg>
+        <span>Goals</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="page-head">
+      <div>
+        <h1>Today</h1>
+        <p id="page-sub" class="page-sub"></p>
+      </div>
+      <span class="summary-chip" id="summary-chip">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="summary-text">—</span>
+      </span>
+    </section>
+
+    <section class="level-panel" aria-label="Level and streaks">
+      <div class="level-badge" aria-hidden="true">
+        <span>Level</span>
+        <b id="level-number">1</b>
+      </div>
+      <div class="level-main">
+        <div class="level-line">
+          <h2 id="level-title">Rookie</h2>
+          <span id="level-xp">0 XP</span>
+        </div>
+        <div class="xp-track" id="xp-track" role="progressbar"
+             aria-label="Progress to next level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="xp-fill" id="xp-fill"></div>
+        </div>
+        <p class="level-sub" id="level-sub">Log activity to earn XP</p>
+      </div>
+      <div class="level-stats">
+        <div class="level-stat"><span>Active streak</span><b id="stat-streak">0 days</b></div>
+        <div class="level-stat"><span>Achievements</span><b id="stat-badges">0 / 0</b></div>
+        <div class="level-stat"><span>This week</span><b id="stat-week">0 days</b></div>
+      </div>
+    </section>
+
+    <section id="cards" class="cards" aria-label="Today's progress"></section>
+
+    <section class="panel" aria-labelledby="quests-title">
+      <header class="panel-head">
+        <div class="panel-title">
+          <h2 id="quests-title">Daily quests</h2>
+          <p id="quests-sub">0 of 3 complete</p>
+        </div>
+        <div class="star-row" id="star-row" role="img" aria-label="Daily score"></div>
+      </header>
+      <div id="quests" class="quests" role="list"></div>
+      <footer class="week-challenge">
+        <div class="week-head">
+          <span>Weekly challenge</span>
+          <b id="week-count">0 / 5 days</b>
+        </div>
+        <div class="week-track"><i id="week-fill"></i></div>
+        <p class="week-hint" id="week-hint">Stay active five days this week.</p>
+      </footer>
+    </section>
+
+    <section class="panel" aria-labelledby="trend-title">
+      <header class="panel-head">
+        <div class="panel-title">
+          <h2 id="trend-title">Trends</h2>
+          <p id="trend-sub">Daily totals</p>
+        </div>
+        <div class="seg" id="range-seg" role="group" aria-label="Date range">
+          <button type="button" data-days="7">7D</button>
+          <button type="button" data-days="14" class="on">14D</button>
+          <button type="button" data-days="30">30D</button>
+        </div>
+      </header>
+      <div id="charts" class="charts"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="badges-title">
+      <header class="panel-head">
+        <div class="panel-title">
+          <h2 id="badges-title">Achievements</h2>
+          <p id="badges-sub">0 of 0 unlocked</p>
+        </div>
+      </header>
+      <div id="badges" class="badges" role="list"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="log-title">
+      <header class="panel-head">
+        <div class="panel-title">
+          <h2 id="log-title">Recent activity</h2>
+          <p id="log-sub">Newest first</p>
+        </div>
+        <a class="btn btn-ghost" href="/api/export.csv" download>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v11m0 0 4-4m-4 4-4-4" fill="none" stroke="currentColor"
+                  stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" fill="none"
+                  stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+          <span>Export</span>
+        </a>
+      </header>
+      <div id="log" class="log"></div>
+    </section>
+
+    <footer class="page-footer">
+      <span id="lifetime"></span>
+      <span class="footer-note">Stored locally · no account needed</span>
+    </footer>
+  </main>
+
+  <dialog id="settings-dialog" class="dialog" aria-labelledby="settings-title">
+    <form id="settings-form">
+      <header class="dialog-head">
+        <div>
+          <h2 id="settings-title">Daily goals</h2>
+          <p>Used for progress rings and streaks.</p>
+        </div>
+        <button type="button" class="icon-btn" data-close-dialog aria-label="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor"
+                  stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </header>
+
+      <label class="field">
+        <span class="field-label">Pushups per day</span>
+        <span class="field-input">
+          <input name="pushups" type="number" min="1" max="100000" step="1" required>
+          <span class="field-suffix">reps</span>
+        </span>
+      </label>
+
+      <label class="field">
+        <span class="field-label">Steps per day</span>
+        <span class="field-input">
+          <input name="steps" type="number" min="1" max="100000" step="1" required>
+          <span class="field-suffix">steps</span>
+        </span>
+      </label>
+
+      <footer class="dialog-actions">
+        <button type="button" class="btn btn-ghost" data-close-dialog>Cancel</button>
+        <button type="submit" class="btn btn-primary">Save goals</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <div class="celebrate" id="celebrate" role="status" aria-live="polite" hidden>
+    <span class="celebrate-icon" id="celebrate-icon" aria-hidden="true"></span>
+    <div class="celebrate-text">
+      <b id="celebrate-title"></b>
+      <span id="celebrate-sub"></span>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
